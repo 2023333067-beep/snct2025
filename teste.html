@@ -26,25 +26,24 @@
   </style>
 </head>
 <body>
-  <a-scene>
+  <a-scene cursor="rayOrigin: mouse">
     <!-- Céu 360° -->
     <a-sky src="Teste2.jpg" rotation="0 -90 0"></a-sky>
 
     <!-- Câmera -->
-    <a-entity id="cameraRig" camera look-controls wasd-controls position="0 1.6 0">
-      <a-entity
-        cursor="fuse: true; fuseTimeout: 1500"
+    <a-camera>
+      <a-cursor 
+        id="cursor"
         raycaster="objects: .clickable"
-        position="0 0 -1"
-        geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-        material="color: white; shader: flat"
         animation__click="property: scale; from: 0.1 0.1 0.1; to: 1 1 1; startEvents: click"
-        animation__fusing="property: scale; from: 1 1 1; to: 0.1 0.1 0.1; startEvents: fusing; dur: 1500">
-      </a-entity>
-    </a-entity>
+        animation__fusing="property: scale; from: 1 1 1; to: 0.1 0.1 0.1; startEvents: fusing; dur: 1500"
+        event-set__mouseenter="_event: mouseenter; color: #00FF00"
+        event-set__mouseleave="_event: mouseleave; color: #FFFFFF">
+      </a-cursor>
+    </a-camera>
 
     <!-- Objeto 1: Coração sobre o letreiro "EU ❤️ TEFÉ" -->
-    <a-sphere
+     <a-sphere
       class="clickable"
       position="80 11 102"
       scale="4 4 4"
@@ -79,44 +78,21 @@
     const popup = document.getElementById('popup');
 
     document.querySelectorAll('.clickable').forEach(obj => {
-      // Quando o olhar ou o clique entra no objeto
-      obj.addEventListener('mouseenter', function () {
+      obj.addEventListener('mouseenter', function(evt) {
         const title = this.getAttribute('data-title');
         const desc = this.getAttribute('data-description');
         popup.innerHTML = `<div class="popup-title">${title}</div><div>${desc}</div>`;
         popup.style.display = 'block';
       });
-
-      // Quando o olhar sai do objeto
-      obj.addEventListener('mouseleave', () => {
-        popup.style.display = 'none';
-      });
-
-      // Quando clica (desktop) ou toca (mobile)
-      obj.addEventListener('click', function () {
-        const title = this.getAttribute('data-title');
-        const desc = this.getAttribute('data-description');
-        popup.innerHTML = `<div class="popup-title">${title}</div><div>${desc}</div>`;
-        popup.style.display = 'block';
-        setTimeout(() => popup.style.display = 'none', 4000); // fecha após 4s
-      });
+      obj.addEventListener('mouseleave', () => popup.style.display = 'none');
     });
 
-    // Movimenta o popup conforme o mouse (somente desktop)
     document.addEventListener('mousemove', evt => {
-      if (popup.style.display === 'block' && !AFRAME.utils.device.isMobile()) {
+      if (popup.style.display === 'block') {
         popup.style.left = (evt.clientX + 15) + 'px';
         popup.style.top = (evt.clientY + 15) + 'px';
       }
     });
-
-    // Para celular: centraliza o popup no topo da tela
-    if (AFRAME.utils.device.isMobile()) {
-      popup.style.position = 'fixed';
-      popup.style.bottom = '10%';
-      popup.style.left = '50%';
-      popup.style.transform = 'translateX(-50%)';
-    }
   </script>
 </body>
 </html>
