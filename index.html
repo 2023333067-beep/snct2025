@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <title>Ambiente 360° - Eu Amo Tefé</title>
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Céu 360° -->
+      <a-sky src="Teste2.jpg" rotation="0 -90 0"></a-sky>
+
+      <!-- 🎧 Áudios -->
+      <a-assets>
+        <audio id="audioLetreiro" src="som1.mp3"></audio>
+        <audio id="audioAeroporto" src="som2.mp3"></audio>
+      </a-assets>
+
+      <!-- Câmera e cursor -->
+      <a-entity id="cameraRig" position="0 1.6 0">
+        <a-entity camera look-controls></a-entity>
+        <a-entity
+          id="cursor"
+          cursor="fuse: true; fuseTimeout: 1200"
+          raycaster="objects: .clickable"
+          position="0 0 -1"
+          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+          material="color: white; shader: flat">
+        </a-entity>
+      </a-entity>
+
+      <!-- ❤️ Letreiro Eu Amo Tefé -->
+      <a-sphere
+        class="clickable"
+        position="80 11 102"
+        scale="4 4 4"
+        color="white"
+        data-title="Letreiro Eu ❤️ Tefé"
+        data-description="O famoso letreiro 'Eu ❤️ Tefé' é um ponto turístico localizado em frente ao aeroporto, simbolizando o amor e orgulho pela cidade."
+        sound="src: #audioLetreiro; on: mouseenter">
+      </a-sphere>
+
+      <!-- ✈️ Aeroporto -->
+      <a-cone 
+        class="clickable"
+        position="-40 5 -15"
+        radius-bottom="1"
+        height="2"
+        color="#00BFFF"
+        data-title="Aeroporto de Tefé"
+        data-description="O Aeroporto de Tefé é o principal acesso aéreo da região do Médio Solimões, conectando Tefé a Manaus e outras cidades amazônicas."
+        sound="src: #audioAeroporto; on: mouseenter">
+      </a-cone>
+
+      <!-- Iluminação -->
+      <a-entity light="type: ambient; color: #ccc"></a-entity>
+      <a-entity light="type: directional; color: #fff; intensity: 0.8" position="2 4 3"></a-entity>
+
+      <!-- Painel de informações -->
+      <a-entity id="infoPanel" visible="false" position="0 0 -2">
+        <a-plane width="2.5" height="1.2" color="black" opacity="0.8" radius="0.1"></a-plane>
+        <a-text id="infoTitle" value="" color="#85f085" position="-1.1 0.35 0.01" width="2.2"></a-text>
+        <a-text id="infoDesc" value="" color="white" position="-1.1 -0.1 0.01" width="2.2" wrap-count="40"></a-text>
+      </a-entity>
+    </a-scene>
+
+    <script>
+      const cameraRig = document.getElementById('cameraRig');
+      const infoPanel = document.getElementById('infoPanel');
+      const infoTitle = document.getElementById('infoTitle');
+      const infoDesc = document.getElementById('infoDesc');
+
+      document.querySelectorAll('.clickable').forEach(obj => {
+        obj.addEventListener('mouseenter', function () {
+          const title = this.getAttribute('data-title');
+          const desc = this.getAttribute('data-description');
+
+          // Atualiza textos
+          infoTitle.setAttribute('value', title);
+          infoDesc.setAttribute('value', desc);
+          infoPanel.setAttribute('visible', true);
+
+          // Posiciona o painel à frente da câmera
+          const cameraPos = cameraRig.object3D.position;
+          const cameraDir = new THREE.Vector3();
+          cameraRig.object3D.getWorldDirection(cameraDir);
+          const panelPos = cameraPos.clone().add(cameraDir.multiplyScalar(2)); // 2 metros à frente
+          infoPanel.object3D.position.copy(panelPos);
+
+          // Faz o painel olhar para a câmera
+          infoPanel.object3D.lookAt(cameraPos);
+
+          // Remove automaticamente após 4 segundos
+          clearTimeout(infoPanel.timeout);
+          infoPanel.timeout = setTimeout(() => {
+            infoPanel.setAttribute('visible', false);
+          }, 4000);
+        });
+
+        obj.addEventListener('mouseleave', function () {
+          clearTimeout(infoPanel.timeout);
+          infoPanel.setAttribute('visible', false);
+        });
+      });
+    </script>
+  </body>
+</html>
