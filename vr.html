@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Ambiente 360° - Eu Amo Tefé</title>
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  <style>
+    .popup {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      border: 2px solid #2d5e2d;
+      max-width: 300px;
+      display: none;
+      z-index: 1000;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+    .popup-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: rgb(134, 230, 147);
+    }
+  </style>
+</head>
+<body>
+  <a-scene>
+    <!-- Céu 360° -->
+    <a-sky src="Teste2.jpg" rotation="0 -90 0"></a-sky>
+
+    <!-- Câmera com cursor fixo no centro -->
+    <a-entity camera look-controls>
+      <a-cursor
+        id="cursor"
+        raycaster="objects: .clickable"
+        material="color: black; shader: flat"
+        geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+        fuse="true"
+        fuse-timeout="500">
+      </a-cursor>
+    </a-entity>
+
+    <!-- Objeto 1: Coração -->
+    <a-sphere
+      class="clickable"
+      position="80 11 102"
+      scale="4 4 4"
+      color="red"
+      data-title="Letreiro Eu ❤️ Tefé"
+      data-description="O famoso letreiro 'Eu ❤️ Tefé' é um ponto turístico localizado em frente ao aeroporto, simbolizando o amor e orgulho pela cidade.">
+    </a-sphere>
+
+    <!-- Objeto 2: Avião -->
+    <a-cone 
+      class="clickable"
+      position="-40 5 -15"
+      radius-bottom="1"
+      height="2"
+      color="#00BFFF"
+      data-title="Aeroporto de Tefé"
+      data-description="O Aeroporto de Tefé é o principal acesso aéreo da região do Médio Solimões, conectando Tefé a Manaus e outras cidades amazônicas.">
+    </a-cone>
+
+    <!-- Iluminação -->
+    <a-entity light="type: ambient; color: #ccc"></a-entity>
+    <a-entity light="type: directional; color: #fff; intensity: 0.8" position="2 4 3"></a-entity>
+
+    <!-- Popup -->
+    <div id="popup" class="popup"></div>
+  </a-scene>
+
+  <script>
+    const popup = document.getElementById('popup');
+    const cursor = document.getElementById('cursor');
+
+    // Detecta qual objeto o cursor está mirando
+    cursor.addEventListener('raycaster-intersected', evt => {
+      const target = evt.detail.el;
+      if (target.classList.contains('clickable')) {
+        const title = target.getAttribute('data-title');
+        const desc = target.getAttribute('data-description');
+        popup.innerHTML = `<div class="popup-title">${title}</div><div>${desc}</div>`;
+        popup.style.display = 'block';
+      }
+    });
+
+    // Quando o cursor sai do objeto, some o popup
+    cursor.addEventListener('raycaster-intersected-cleared', () => {
+      popup.style.display = 'none';
+    });
+
+    // Mantém o popup acompanhando a tela
+    document.addEventListener('mousemove', evt => {
+      if (popup.style.display === 'block') {
+        popup.style.left = (window.innerWidth / 2 + 20) + 'px';
+        popup.style.top = (window.innerHeight / 2 - 40) + 'px';
+      }
+    });
+  </script>
+</body>
+</html>
